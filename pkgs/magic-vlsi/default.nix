@@ -9,6 +9,7 @@ pkgs.stdenv.mkDerivation {
     repo = "magic";
     rev = "8.3.525";
     sha256 = "sha256-yviA36C4KkGNM56rvZvPBi5huvKDO5Z4DG9gO5tKYCA=";
+    leaveDotGit = true;
   };
 
   nativeBuildInputs = with pkgs; [
@@ -17,9 +18,11 @@ pkgs.stdenv.mkDerivation {
     libtool
     pkg-config
     git
+    m4
   ];
 
   buildInputs = with pkgs; [
+    glibc
     tcl
     tk
     xorg.libX11
@@ -27,22 +30,17 @@ pkgs.stdenv.mkDerivation {
     mesa
     mesa_glu
     python3
+    tcsh
+    ncurses
+    freeglut
   ];
+
+  enableParallelBuilding = true;
 
   configureFlags = [
     "--with-tcl=${pkgs.tcl}/lib"
     "--with-tk=${pkgs.tk}/lib"
-    "--with-x"
-    "--with-python=${pkgs.python3}/bin/python3"
   ];
-  /*
-  postUnpack = ''
-    cd $sourceRoot
-    git init
-    git add .
-    git commit -m "Initial commit"
-  '';
-  */
 
   preBuild = ''
     chmod +x scripts/makedbh
