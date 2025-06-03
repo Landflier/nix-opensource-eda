@@ -42,11 +42,6 @@ stdenv.mkDerivation rec {
 
   enableParallelBuilding = true;
 
-  postInstall = ''
-    mkdir -p $NIX_BUILD_TOP/result/ngspice
-    cp -r $out/* $NIX_BUILD_TOP/result/ngspice/
-  '';
-
   meta = with lib; {
     description = "Next Generation Spice (Electronic Circuit Simulator)";
     mainProgram = "ngspice";
