@@ -1,18 +1,38 @@
-{ pkgs ? import <nixpkgs> {} }:
+{ lib
+, stdenv
+, fetchFromGitHub
+, autoconf
+, automake
+, libtool
+, pkg-config
+, git
+, m4
+, glibc
+, tcl
+, tk
+, xorg
+, cairo
+, mesa
+, mesa_glu
+, python3
+, tcsh
+, ncurses
+, freeglut
+}:
 
-pkgs.stdenv.mkDerivation {
+stdenv.mkDerivation rec {
   pname = "magic-vlsi";
   version = "8.3.525";
 
-  src = pkgs.fetchFromGitHub {
+  src = fetchFromGitHub {
     owner = "RTimothyEdwards";
     repo = "magic";
-    rev = "8.3.525";
+    rev = version;
     sha256 = "sha256-yviA36C4KkGNM56rvZvPBi5huvKDO5Z4DG9gO5tKYCA=";
     leaveDotGit = true;
   };
 
-  nativeBuildInputs = with pkgs; [
+  nativeBuildInputs = [
     autoconf
     automake
     libtool
@@ -21,7 +41,7 @@ pkgs.stdenv.mkDerivation {
     m4
   ];
 
-  buildInputs = with pkgs; [
+  buildInputs = [
     glibc
     tcl
     tk
@@ -35,18 +55,24 @@ pkgs.stdenv.mkDerivation {
     freeglut
   ];
 
-  enableParallelBuilding = true;
+  # enableParallelBuilding = true;
 
   configureFlags = [
-    "--with-tcl=${pkgs.tcl}/lib"
-    "--with-tk=${pkgs.tk}/lib"
+    "--with-tcl=${tcl}/lib"
+    "--with-tk=${tk}/lib"
   ];
 
   preBuild = ''
     chmod +x scripts/makedbh
   '';
 
-  meta = with pkgs.lib; {
+  # Add a post install phase to copy to result directory
+  postInstall = ''
+    mkdir -p $NIX_BUILD_TOP/result/magic-vlsi
+    cp -r $out/* $NIX_BUILD_TOP/result/magic-vlsi/
+  '';
+
+  meta = with lib; {
     description = "VLSI layout tool";
     homepage = "http://opencircuitdesign.com/magic/";
     license = licenses.gpl2;
