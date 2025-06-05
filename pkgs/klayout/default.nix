@@ -1,30 +1,40 @@
-{ pkgs ? import <nixpkgs> {} }:
+{ lib
+, stdenv
+, fetchFromGitHub
+, which
+, perl
+, python3
+, ruby
+, git
+, qt5
+, libgit2
+}:
 
-pkgs.stdenv.mkDerivation {
+stdenv.mkDerivation rec {
   pname = "klayout";
   version = "0.30.1";
 
-  src = pkgs.fetchFromGitHub {
+  src = fetchFromGitHub {
     owner = "KLayout";
     repo = "klayout";
-    rev = "0.30.1";
+    rev = version;
     hash = "sha256-5e697uEuH2r/k/5qSuluJ2qvgCqM/Z+O0fZ7Lygdvz4=";
   };
-
 
   postPatch = ''
     substituteInPlace src/klayout.pri --replace "-Wno-reserved-user-defined-literal" ""
     patchShebangs .
   '';
 
-  nativeBuildInputs = with pkgs; [
+  nativeBuildInputs = [
     which
     perl
     python3
     ruby
+    git
   ];
 
-  buildInputs = with pkgs; [
+  buildInputs = [
     qt5.qtbase
     qt5.qtmultimedia
     qt5.qttools
@@ -41,7 +51,7 @@ pkgs.stdenv.mkDerivation {
   '';
 
   postBuild =
-    pkgs.lib.optionalString pkgs.stdenv.hostPlatform.isLinux ''
+    lib.optionalString stdenv.hostPlatform.isLinux ''
       mkdir $out/bin
 
       install -Dm444 etc/klayout.desktop -t $out/share/applications
@@ -49,10 +59,10 @@ pkgs.stdenv.mkDerivation {
       mv $out/lib/klayout $out/bin/
     '';
 
-  # Add a post install phase to copy to results directory
+  # Add a post install phase to copy to result directory
   postInstall = ''
-    mkdir -p $NIX_BUILD_TOP/results/klayout
-    cp -r $out/* $NIX_BUILD_TOP/results/klayout/
+    mkdir -p $NIX_BUILD_TOP/result/klayout
+    cp -r $out/* $NIX_BUILD_TOP/result/klayout/
   '';
 
   env.NIX_CFLAGS_COMPILE = toString [ "-Wno-parentheses" ];
@@ -63,7 +73,7 @@ pkgs.stdenv.mkDerivation {
   # and no format arguments [-Werror=format-security]"
   hardeningDisable = [ "format" ];
 
-  meta = with pkgs.lib; {
+  meta = with lib; {
     description = "High performance layout viewer and editor with support for GDS and OASIS";
     mainProgram = "klayout";
     license = with licenses; [ gpl2Plus ];
