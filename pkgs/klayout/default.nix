@@ -59,15 +59,9 @@ stdenv.mkDerivation rec {
       mv $out/lib/klayout $out/bin/
     '';
 
-  # Add a post install phase to copy to result directory
-  postInstall = ''
-    mkdir -p $NIX_BUILD_TOP/result/klayout
-    cp -r $out/* $NIX_BUILD_TOP/result/klayout/
-  '';
-
   env.NIX_CFLAGS_COMPILE = toString [ "-Wno-parentheses" ];
 
-  dontInstall = false; # We need the install phase now
+  dontInstall = true; 
 
   # Fix: "gsiDeclQMessageLogger.cc:126:42: error: format not a string literal
   # and no format arguments [-Werror=format-security]"
