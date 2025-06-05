@@ -4,65 +4,70 @@ let
   inherit (pkgs) lib callPackage runCommand symlinkJoin;
 
   # Import individual package derivations
-  magic-vlsi = callPackage ./pkgs/magic-vlsi {};
   irsim = callPackage ./pkgs/irsim {};
-  netgen = callPackage ./pkgs/netgen {};
-  yosys = callPackage ./pkgs/yosys {};
-  openroad = callPackage ./pkgs/openroad {};
   klayout = callPackage ./pkgs/klayout {};
-  open_pdks = callPackage ./pkgs/open_pdks {};
+  magic-vlsi = callPackage ./pkgs/magic-vlsi {};
+  netgen = callPackage ./pkgs/netgen {};
   ngspice = callPackage ./pkgs/ngspice {};
-
-  # Function to create a package result directory
-  mkPkgResult = name: pkg: runCommand "${name}-result" {} ''
-    mkdir -p $out/${name}
-    cp -r ${pkg}/* $out/${name}/
-  '';
+  # open_pdks = callPackage ./pkgs/open_pdks {};
+  # openroad = callPackage ./pkgs/openroad {};
+  xcircuit = callPackage ./pkgs/xcircuit {};
+  xschem = callPackage ./pkgs/xschem {};
+  xyce = callPackage ./pkgs/xyce {};
+  yosys = callPackage ./pkgs/yosys {};
 
 in {
-  inherit magic-vlsi irsim netgen yosys openroad klayout open_pdks ngspice;
+  # inherit magic-vlsi irsim netgen yosys openroad klayout open_pdks ngspice xschem xcircuit;
+  inherit irsim klayout magic-vlsi netgen ngspice xcircuit xschem xyce yosys;
 
   # Create a combined package with all tools
   all = pkgs.buildEnv {
     name = "eda-tools";
     paths = [
-      magic-vlsi
       irsim
-      netgen
-      yosys
-      openroad
       klayout
-      open_pdks
+      magic-vlsi
+      netgen
       ngspice
+      # openroad
+      # open_pdks
+      xcircuit
+      xschem
+      xyce
+      yosys
     ];
   };
 
   # Create structured output with each package in its own directory
-  result = symlinkJoin {
-    name = "eda-tools-result";
-    paths = [
-      (mkPkgResult "magic-vlsi" magic-vlsi)
-      (mkPkgResult "irsim" irsim)
-      (mkPkgResult "netgen" netgen)
-      (mkPkgResult "yosys" yosys)
-      (mkPkgResult "openroad" openroad)
-      (mkPkgResult "klayout" klayout)
-      (mkPkgResult "open_pdks" open_pdks)
-      (mkPkgResult "ngspice" ngspice)
-    ];
-  };
+  result = runCommand "eda-tools-result" {} ''
+    mkdir -p $out
+    
+    # Create symlinks for each package in its own subdirectory
+    ln -s ${irsim} $out/irsim
+    ln -s ${klayout} $out/klayout
+    ln -s ${magic-vlsi} $out/magic-vlsi
+    ln -s ${netgen} $out/netgen
+    ln -s ${ngspice} $out/ngspice
+    ln -s ${xcircuit} $out/xcircuit
+    ln -s ${xschem} $out/xschem
+    ln -s ${xyce} $out/xyce
+    ln -s ${yosys} $out/yosys
+  '';
 
   # Shell environment
   shell = pkgs.mkShell {
     buildInputs = [
-      magic-vlsi
       irsim
-      netgen
-      yosys
-      openroad
       klayout
-      open_pdks
+      magic-vlsi
+      netgen
       ngspice
+      # openroad
+      # open_pdks
+      xcircuit
+      xschem
+      xyce
+      yosys
     ];
   };
 }
