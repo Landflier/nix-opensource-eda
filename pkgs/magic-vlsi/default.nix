@@ -28,7 +28,7 @@ stdenv.mkDerivation rec {
     owner = "RTimothyEdwards";
     repo = "magic";
     rev = version;
-    sha256 = "sha256-yviA36C4KkGNM56rvZvPBi5huvKDO5Z4DG9gO5tKYCA=";
+    sha256 = "sha256-PJk8RL4dQrcYR1GfmkovWqh6I+HEamqGVOLePs9V6lo=";
     leaveDotGit = true;
   };
 
@@ -64,6 +64,12 @@ stdenv.mkDerivation rec {
 
   preBuild = ''
     chmod +x scripts/makedbh
+  '';
+
+  env.NIX_CFLAGS_COMPILE = "-Wno-implicit-function-declaration";
+
+  postPatch = ''
+    patchShebangs scripts/*
   '';
 
   # Add a post install phase to copy to result directory
