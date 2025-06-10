@@ -62,6 +62,8 @@ CAD_nix_setup/
   ```bash
   # Install Nix (if not already installed)
   curl -L https://nixos.org/nix/install | sh
+  # Install nix-bin
+  sudo apt install nix-bin
   ```
 
 ### Option 1: Development Shell (Recommended)
