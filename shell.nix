@@ -2,10 +2,18 @@
 
 let
   eda-tools = import ./default.nix { inherit pkgs; };
+  pythonEnv = pkgs.python310.withPackages(ps: with ps; [ 
+	pip
+	virtualwrapper
+  ]);
 in
   pkgs.mkShell {
     buildInputs = [
       eda-tools.all
+    ];
+
+    packages = [
+      pythonEnv
     ];
 
     shellHook = ''
