@@ -2,9 +2,10 @@
 
 let
   eda-tools = import ./default.nix { inherit pkgs; };
-  pythonEnv = pkgs.python310.withPackages(ps: with ps; [ 
+  pythonEnv = pkgs.python3.withPackages(ps: with ps; [ 
 	pip
-	virtualwrapper
+	wheel
+	virtualenvwrapper
   ]);
 in
   pkgs.mkShell {
