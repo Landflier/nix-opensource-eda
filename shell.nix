@@ -2,9 +2,10 @@
 
 let
   eda-tools = import ./default.nix { inherit pkgs; };
-  pythonEnv = pkgs.python310.withPackages(ps: with ps; [ 
-	pip
-	virtualwrapper
+  pythonEnv = pkgs.python3.withPackages(ps: with ps; [
+    pip
+    setuptools
+    wheel
   ]);
 in
   pkgs.mkShell {
@@ -40,5 +41,8 @@ in
       echo "  - yosys"
       echo ""
       echo "You can now run these tools directly by name!"
+
+      export PYTHONPATH="${pythonEnv}/${pythonEnv.sitePackages}"
+      export PATH="${pythonEnv}/bin:$PATH"
     '';
   }
