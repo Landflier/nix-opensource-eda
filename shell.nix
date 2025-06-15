@@ -10,7 +10,7 @@ let
 in
   pkgs.mkShell {
     buildInputs = [
-      eda-tools.all
+      eda-tools.allWithDeps
     ];
 
     packages = [
@@ -39,6 +39,12 @@ in
       echo "  - xschem"
       echo "  - xyce"
       echo "  - yosys"
+      echo ""
+      echo "Build dependencies also available:"
+      echo "  - cairo (pkg-config: cairo)"
+      echo "  - autotools (autoconf, automake, libtool)"
+      echo "  - pkg-config"
+      echo "  - tcl/tk"
       echo ""
       echo "You can now run these tools directly by name!"
 
