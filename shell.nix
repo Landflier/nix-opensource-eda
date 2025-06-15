@@ -6,11 +6,28 @@ let
     pip
     setuptools
     wheel
+    cairocffi 
   ]);
 in
   pkgs.mkShell {
     buildInputs = [
       eda-tools.allWithDeps
+
+      # Build dependencies that should be available in PATH
+      pkgs.cairo
+      pkgs.pkg-config
+      pkgs.autoconf
+      pkgs.automake
+      pkgs.libtool
+      pkgs.git
+      pkgs.m4
+      pkgs.tcl
+      pkgs.tk
+      pkgs.mesa
+      pkgs.mesa_glu
+      pkgs.python3
+      pkgs.ncurses
+      pkgs.freeglut
     ];
 
     packages = [
