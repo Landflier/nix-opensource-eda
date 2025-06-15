@@ -6,11 +6,28 @@ let
     pip
     setuptools
     wheel
+    cairocffi 
   ]);
 in
   pkgs.mkShell {
     buildInputs = [
-      eda-tools.all
+      eda-tools.allWithDeps
+
+      # Build dependencies that should be available in PATH
+      pkgs.cairo
+      pkgs.pkg-config
+      pkgs.autoconf
+      pkgs.automake
+      pkgs.libtool
+      pkgs.git
+      pkgs.m4
+      pkgs.tcl
+      pkgs.tk
+      pkgs.mesa
+      pkgs.mesa_glu
+      pkgs.python3
+      pkgs.ncurses
+      pkgs.freeglut
     ];
 
     packages = [
@@ -39,6 +56,12 @@ in
       echo "  - xschem"
       echo "  - xyce"
       echo "  - yosys"
+      echo ""
+      echo "Build dependencies also available:"
+      echo "  - cairo (pkg-config: cairo)"
+      echo "  - autotools (autoconf, automake, libtool)"
+      echo "  - pkg-config"
+      echo "  - tcl/tk"
       echo ""
       echo "You can now run these tools directly by name!"
 
