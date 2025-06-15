@@ -6,12 +6,18 @@ let
     pip
     setuptools
     wheel
+
+    # required by OpenFASoC and GLayout
     cairocffi 
   ]);
 in
   pkgs.mkShell {
     buildInputs = [
       eda-tools.allWithDeps
+      
+      # required by OpenFASoC and GLayout
+      pkgs.stdenv.cc.cc.lib
+      pkgs.zlib
 
       # Build dependencies that should be available in PATH
       pkgs.cairo
@@ -67,5 +73,10 @@ in
 
       export PYTHONPATH="${pythonEnv}/${pythonEnv.sitePackages}"
       export PATH="${pythonEnv}/bin:$PATH"
+
+      # required by GLayout
+      export LD_LIBRARY_PATH=${pkgs.lib.makeLibraryPath [
+         pkgs.stdenv.cc.cc
+      ]}
     '';
   }
