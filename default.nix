@@ -10,11 +10,11 @@ let
   netgen = callPackage ./pkgs/netgen {};
   ngspice = callPackage ./pkgs/ngspice {};
   # open_pdks = callPackage ./pkgs/open_pdks {};
-  openroad = callPackage ./pkgs/openroad {};
+  yosys = callPackage ./pkgs/yosys {};
+  openroad = callPackage ./pkgs/openroad { yosys = yosys; };
   xcircuit = callPackage ./pkgs/xcircuit {};
   xschem = callPackage ./pkgs/xschem {};
   xyce = callPackage ./pkgs/xyce {};
-  yosys = callPackage ./pkgs/yosys {};
 
 in {
   # inherit magic-vlsi irsim netgen yosys openroad klayout open_pdks ngspice xschem xcircuit;
