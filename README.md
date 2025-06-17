@@ -12,6 +12,9 @@ This project packages and provides easy access to essential EDA tools through th
 
 ## 🛠️ Included Tools
 
+### Circuit Characterization & Analysis
+- **[CACE](https://cace.readthedocs.io/)** - Circuit Automatic Characterization Engine for analog and mixed-signal circuits
+
 ### Digital Design & Synthesis
 - **[Yosys](http://www.clifford.at/yosys/)** - RTL synthesis framework for Verilog HDL
 - **[OpenROAD](https://openroad.readthedocs.io/)** - Complete RTL-to-GDSII platform *(commented out - WIP)*
@@ -37,11 +40,10 @@ This project packages and provides easy access to essential EDA tools through th
 CAD_nix_setup/
 ├── README.md           # This file
 ├── LICENSE             # GPL v2 license
-├── flake.nix           # Modern Nix flake configuration (NEW)
+├── flake.nix           # Nix flake configuration
 ├── flake.lock          # Flake lock file for reproducibility (generated)
-├── default.nix         # Legacy Nix expression (for compatibility)
-├── shell.nix           # Legacy development shell (for compatibility)
 ├── pkgs/               # Individual package definitions
+│   ├── cace/           # Circuit Automatic Characterization Engine
 │   ├── irsim/
 │   ├── klayout/
 │   ├── magic-vlsi/
@@ -68,8 +70,8 @@ CAD_nix_setup/
   echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
   ```
 
-### Option 1: Development Shell (Recommended - Flake)
-Enter a shell with all EDA tools available using flakes:
+### Option 1: Development Shell (Recommended)
+Enter a shell with all EDA tools available:
 ```bash
 # Enter development shell
 nix develop
@@ -78,53 +80,36 @@ nix develop
 nix develop .#legacy
 ```
 
-### Option 2: Legacy Nix Shell (Still Supported)
-```bash
-nix-shell
-```
-
-### Option 3: Build Individual Tools (Flake)
+### Option 2: Build Individual Tools
 ```bash
 # Build a specific tool
 nix build .#yosys
 nix build .#magic-vlsi
 nix build .#ngspice
+nix build .#cace
 
 # Build all tools
 nix build .#all
 ```
 
-### Option 4: Run Tools Directly (Flake)
+### Option 3: Run Tools Directly
 ```bash
 # Run tools without entering a shell
 nix run .#magic
 nix run .#yosys
 nix run .#xschem
+nix run .#cace
 ```
 
-### Option 5: Legacy Build Commands (Still Supported)
+### Option 4: Install Globally
 ```bash
-# Build a specific tool
-nix-build -A yosys
-nix-build -A magic-vlsi
-nix-build -A ngspice
-
-# Build all tools
-nix-build -A all
-```
-
-### Option 6: Install Globally
-```bash
-# Install all tools to your user profile (flake)
+# Install all tools to your user profile
 nix profile install .#all
-
-# Legacy install
-nix-env -f . -iA all
 ```
 
-## 🔄 Migration to Flakes
+## 🚀 Flake-Based Architecture
 
-This project now supports **Nix flakes** for improved reproducibility and easier dependency management. The legacy `shell.nix` and `default.nix` files are still supported for backward compatibility.
+This project uses **Nix flakes** for improved reproducibility and easier dependency management.
 
 ### Key Benefits of Flakes
 - **Lock file** (`flake.lock`) ensures exact reproducibility
@@ -137,7 +122,7 @@ This project now supports **Nix flakes** for improved reproducibility and easier
 ```bash
 # Development shells
 nix develop              # Main development environment
-nix develop .#legacy     # Legacy shell environment
+nix develop .#legacy     # Minimal shell environment
 
 # Building packages
 nix build .#all          # Build all tools
@@ -146,6 +131,7 @@ nix build .#yosys       # Build specific tool
 # Running tools directly
 nix run .#magic         # Run Magic VLSI directly
 nix run .#yosys         # Run Yosys directly
+nix run .#cace          # Run CACE directly
 
 # Show available outputs
 nix flake show          # List all available packages and apps
@@ -153,7 +139,19 @@ nix flake show          # List all available packages and apps
 
 ## 💻 Usage Examples
 
-### Digital Design Flow (Flake)
+### Circuit Characterization with CACE
+```bash
+# Enter the development environment
+nix develop
+
+# Or run CACE directly
+nix run .#cace -- datasheet.yaml output/ --summary
+
+# Run parametric analysis
+nix run .#cace -- datasheet.yaml output/ --param corner=tt --temp 27
+```
+
+### Digital Design Flow
 ```bash
 # Enter the development environment
 nix develop
@@ -165,19 +163,7 @@ nix run .#yosys -- -p "read_verilog design.v; synth; write_json design.json"
 nix run .#klayout -- design.gds
 ```
 
-### Digital Design Flow (Legacy)
-```bash
-# Enter the development environment
-nix-shell
-
-# Synthesize Verilog with Yosys
-yosys -p "read_verilog design.v; synth; write_json design.json"
-
-# View results in KLayout
-klayout design.gds
-```
-
-### Analog Simulation Flow (Flake)
+### Analog Simulation Flow
 ```bash
 # Enter the development environment
 nix develop
@@ -188,22 +174,7 @@ nix run .#ngspice -- simulation.cir  # Simulate with NGSpice
 nix run .#xyce -- netlist.cir        # High-performance simulation
 ```
 
-### Analog Simulation Flow (Legacy)
-```bash
-# Enter the development environment
-nix-shell
-
-# Create schematic with Xschem
-xschem
-
-# Simulate with NGSpice
-ngspice simulation.cir
-
-# For high-performance simulation
-xyce netlist.cir
-```
-
-### Layout and Verification (Flake)
+### Layout and Verification
 ```bash
 # Enter the development environment
 nix develop
@@ -211,21 +182,9 @@ nix develop
 # Or run tools directly
 nix run .#magic -- -T technology_file layout.mag
 nix run .#klayout -- layout.gds
-```
 
-### Layout and Verification (Legacy)
-```bash
-# Enter the development environment
-nix-shell
-
-# Create/edit layout with Magic
-magic -T technology_file layout.mag
-
-# Verify with Netgen (LVS)
+# Verify with Netgen (LVS) - in dev shell
 netgen -batch lvs "layout.spice" "schematic.spice"
-
-# View layout in KLayout
-klayout layout.gds
 ```
 
 ## 🔧 Development
@@ -246,10 +205,10 @@ Each tool's package definition is in `pkgs/toolname/default.nix`. Modify these f
 ### Building and Testing
 ```bash
 # Test build of a single package
-nix-build -A toolname
+nix build .#toolname
 
 # Test the development shell
-nix-shell --run "which toolname"
+nix develop --command which toolname
 
 # Clean build outputs
 rm -rf result/
@@ -261,14 +220,14 @@ rm -rf result/
 
 **Build failures**: Check the specific tool's build log:
 ```bash
-nix-build -A toolname 2>&1 | tee build.log
+nix build .#toolname 2>&1 | tee build.log
 ```
 
 **Missing dependencies**: Ensure all required system packages are available. On NixOS, they're handled automatically. On other systems, you might need additional packages.
 
-**Path issues**: Make sure you're in the nix-shell when trying to run tools:
+**Path issues**: Make sure you're in the development shell when trying to run tools:
 ```bash
-nix-shell
+nix develop
 which magic  # Should show a /nix/store/... path
 ```
 
