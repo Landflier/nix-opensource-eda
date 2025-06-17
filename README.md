@@ -37,8 +37,10 @@ This project packages and provides easy access to essential EDA tools through th
 CAD_nix_setup/
 ├── README.md           # This file
 ├── LICENSE             # GPL v2 license
-├── default.nix         # Main Nix expression defining all packages
-├── shell.nix           # Development shell configuration
+├── flake.nix           # Modern Nix flake configuration (NEW)
+├── flake.lock          # Flake lock file for reproducibility (generated)
+├── default.nix         # Legacy Nix expression (for compatibility)
+├── shell.nix           # Legacy development shell (for compatibility)
 ├── pkgs/               # Individual package definitions
 │   ├── irsim/
 │   ├── klayout/
@@ -58,26 +60,49 @@ CAD_nix_setup/
 ## 🚀 Quick Start
 
 ### Prerequisites
-- **Nix package manager** installed on your system
+- **Nix package manager** with flakes support installed on your system
   ```bash
   # Install Nix (if not already installed)
   curl -L https://nixos.org/nix/install | sh
-  # Install nix-bin
-  sudo apt install nix-bin
+  # Enable flakes (add to ~/.config/nix/nix.conf or /etc/nix/nix.conf)
+  echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
   ```
 
-### Option 1: Development Shell (Recommended)
-Enter a shell with all EDA tools available:
+### Option 1: Development Shell (Recommended - Flake)
+Enter a shell with all EDA tools available using flakes:
+```bash
+# Enter development shell
+nix develop
+
+# Or use the legacy shell for compatibility
+nix develop .#legacy
+```
+
+### Option 2: Legacy Nix Shell (Still Supported)
 ```bash
 nix-shell
 ```
 
-This will:
-- Build all EDA tools
-- Add them to your PATH
-- Provide a ready-to-use environment
+### Option 3: Build Individual Tools (Flake)
+```bash
+# Build a specific tool
+nix build .#yosys
+nix build .#magic-vlsi
+nix build .#ngspice
 
-### Option 2: Build Individual Tools
+# Build all tools
+nix build .#all
+```
+
+### Option 4: Run Tools Directly (Flake)
+```bash
+# Run tools without entering a shell
+nix run .#magic
+nix run .#yosys
+nix run .#xschem
+```
+
+### Option 5: Legacy Build Commands (Still Supported)
 ```bash
 # Build a specific tool
 nix-build -A yosys
@@ -88,15 +113,59 @@ nix-build -A ngspice
 nix-build -A all
 ```
 
-### Option 3: Install Globally
+### Option 6: Install Globally
 ```bash
-# Install all tools to your user profile
+# Install all tools to your user profile (flake)
+nix profile install .#all
+
+# Legacy install
 nix-env -f . -iA all
+```
+
+## 🔄 Migration to Flakes
+
+This project now supports **Nix flakes** for improved reproducibility and easier dependency management. The legacy `shell.nix` and `default.nix` files are still supported for backward compatibility.
+
+### Key Benefits of Flakes
+- **Lock file** (`flake.lock`) ensures exact reproducibility
+- **Better caching** and performance
+- **Direct tool execution** without entering shells
+- **Modern Nix CLI** commands
+- **Easier CI/CD integration**
+
+### Flake Commands Summary
+```bash
+# Development shells
+nix develop              # Main development environment
+nix develop .#legacy     # Legacy shell environment
+
+# Building packages
+nix build .#all          # Build all tools
+nix build .#yosys       # Build specific tool
+
+# Running tools directly
+nix run .#magic         # Run Magic VLSI directly
+nix run .#yosys         # Run Yosys directly
+
+# Show available outputs
+nix flake show          # List all available packages and apps
 ```
 
 ## 💻 Usage Examples
 
-### Digital Design Flow
+### Digital Design Flow (Flake)
+```bash
+# Enter the development environment
+nix develop
+
+# Or run tools directly without shell
+nix run .#yosys -- -p "read_verilog design.v; synth; write_json design.json"
+
+# View results in KLayout
+nix run .#klayout -- design.gds
+```
+
+### Digital Design Flow (Legacy)
 ```bash
 # Enter the development environment
 nix-shell
@@ -108,7 +177,18 @@ yosys -p "read_verilog design.v; synth; write_json design.json"
 klayout design.gds
 ```
 
-### Analog Simulation Flow
+### Analog Simulation Flow (Flake)
+```bash
+# Enter the development environment
+nix develop
+
+# Or run tools directly
+nix run .#xschem        # Create schematic with Xschem
+nix run .#ngspice -- simulation.cir  # Simulate with NGSpice
+nix run .#xyce -- netlist.cir        # High-performance simulation
+```
+
+### Analog Simulation Flow (Legacy)
 ```bash
 # Enter the development environment
 nix-shell
@@ -123,7 +203,17 @@ ngspice simulation.cir
 xyce netlist.cir
 ```
 
-### Layout and Verification
+### Layout and Verification (Flake)
+```bash
+# Enter the development environment
+nix develop
+
+# Or run tools directly
+nix run .#magic -- -T technology_file layout.mag
+nix run .#klayout -- layout.gds
+```
+
+### Layout and Verification (Legacy)
 ```bash
 # Enter the development environment
 nix-shell
